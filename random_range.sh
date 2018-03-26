@@ -30,7 +30,7 @@ function random_range()
 #    echo $_h $_m	
 }
 
-##call  function
+##call  function h_start h_end m_start m_end
 random_range 1 6 1 59
 
 ## delete crontab
