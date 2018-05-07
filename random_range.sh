@@ -9,7 +9,7 @@ function random_range()
     low=$1
     range=$(($2 - $1))
     low_1=$3
-    range_1=$4	
+    range_1=$(($4 -$3 ))
     _h=$(($low+$RANDOM % $range))
     	
 	if [ "$_h" -lt "10" ]; then
@@ -17,8 +17,6 @@ function random_range()
 	fi
 	
 	
-    low_1=$3
-    range_1=$4
     _m=$(($low_1+$RANDOM % $range_1))
 
         if [ "$_m" -lt "10" ]; then
@@ -30,14 +28,22 @@ function random_range()
 #    echo $_h $_m	
 }
 
-##call  function h_start h_end m_start m_end
-random_range 1 6 1 59
 
 ## delete crontab
 sed -i '/p2plogin_linux.py/d' /var/spool/cron/$USER
+sed -i '/kingbus_linux.py/d' /var/spool/cron/$USER
 
 ## add crontab
-echo "$_m $_h  * * * cd /root/python_dir && /usr/local/bin/python3.6 p2plogin_linux.py" >> "/var/spool/cron/$USER"
+
+##call  function h_start h_end m_start m_end
+random_range 1 6 1 59
+echo "$_m $_h  * * * cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux.py" >> "/var/spool/cron/$USER"
+
+sleep 0.5
+
+##call  function h_start h_end m_start m_end
+random_range 1 6 1 59
+echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && /usr/local/bin/python3.6 kingbus_linux.py" >> "/var/spool/cron/$USER"
 
 ## crontab apply
 /usr/bin/crontab /var/spool/cron/$USER
