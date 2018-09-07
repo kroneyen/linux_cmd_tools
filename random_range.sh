@@ -12,9 +12,9 @@ function random_range()
     low=$1
     range=$(($2 - $1))
     low_1=$3
-    range_1=$(($4 -$3 ))
+    range_1=$(($4 -$3 +1)) ##1~59
     low_2=$5
-    range_2=$(($6 -$5 ))
+    range_2=$(($6 -$5 +1)) ##1~7
 
     _h=$(($low+$RANDOM % $range)) ## for hours
     	
@@ -72,7 +72,7 @@ sed -i '/p2plogin_linux_with_reply_drama.py/d' /var/spool/cron/$USER
 ## add crontab
 
 ##call  function of p2p h_start h_end m_start m_end w_start w_end
-random_range 1 6 1 59 1 7
+random_range 1 5 1 59 1 7
 echo "$_m $_h  * * * cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
@@ -81,7 +81,7 @@ flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply.py'
 
 
 ##call  function of kingbus h_start h_end m_start m_end w_start w_end
-random_range 1 6 1 59 1 7
+random_range 1 5 1 59 1 7
 echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && /usr/local/bin/python3.6 kingbus_linux.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
@@ -96,7 +96,7 @@ flush_logs '/root/python_dir/kingbus' 'kingbus_linux.py'
 
 
 ##call  function of apk_linux_with_reply h_start h_end m_start m_end w_start w_end
-random_range 1 6 1 59 1 7
+random_range 1 5 1 59 1 7
 echo "$_m $_h  * * * cd /root/python_dir/apklogin && /usr/local/bin/python3.6 apk_linux_with_reply.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
@@ -106,7 +106,7 @@ flush_logs '/root/python_dir/apklogin' 'apk_linux_with_reply.py'
 
 
 ## call  function of drama h_start h_end m_start m_end w_start w_end
-random_range 1 6 1 59 1 7
+random_range 1 5 1 59 1 7
 echo "$_m $_h  * * $_w cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply_drama.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
