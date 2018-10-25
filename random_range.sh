@@ -2,7 +2,6 @@
 #20180830 adding flush_logs clean more than 10 M
 #20180903 adding random_range of week
 
-
 function random_range()
 {
     if [ "$#" -lt "6" ]; then 
@@ -68,6 +67,7 @@ sed -i '/kingbus_linux.py/d' /var/spool/cron/$USER
 #sed -i '/no_ip_confirm.py/d' /var/spool/cron/$USER
 sed -i '/apk_linux_with_reply.py/d' /var/spool/cron/$USER
 sed -i '/p2plogin_linux_with_reply_drama.py/d' /var/spool/cron/$USER
+sed -i '/p2plogin_linux_with_reply_software.py/d' /var/spool/cron/$USER
 
 ## add crontab
 
@@ -112,6 +112,16 @@ echo "$_m $_h  * * $_w cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 
 sleep 0.5
 ##call function flush_logs(path log_file_locate)
 flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_drama.py'
+
+
+## call  function of software h_start h_end m_start m_end w_start w_end
+random_range 1 5 1 59 1 7
+echo "$_m $_h  * * $_w cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply_software.py" >> "/var/spool/cron/$USER"
+
+sleep 0.5
+##call function flush_logs(path log_file_locate)
+flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_software.py'
+
 
 
 ## crontab apply
