@@ -64,10 +64,11 @@ fi
 ## delete crontab
 sed -i '/p2plogin_linux_with_reply.py/d' /var/spool/cron/$USER
 sed -i '/kingbus_linux.py/d' /var/spool/cron/$USER
-#sed -i '/no_ip_confirm.py/d' /var/spool/cron/$USER
+sed -i '/no_ip_confirm.py/d' /var/spool/cron/$USER
 sed -i '/apk_linux_with_reply.py/d' /var/spool/cron/$USER
 sed -i '/p2plogin_linux_with_reply_drama.py/d' /var/spool/cron/$USER
 sed -i '/p2plogin_linux_with_reply_software.py/d' /var/spool/cron/$USER
+sed -i '/awa_linux_with_reply.py/d' /var/spool/cron/$USER
 
 ## add crontab
 
@@ -89,10 +90,13 @@ sleep 0.5
 ##call function flush_logs(path log_file_locate)
 flush_logs '/root/python_dir/kingbus' 'kingbus_linux.py'
 
-##call  function of no-ip h_start h_end m_start m_end w_start w_end
-#random_range 1 6 1 59
-#echo "$_m $_h  * * 1 cd /root/python_dir/no_ip && /usr/local/bin/python3.6 no_ip_confirm.py" >> "/var/spool/cron/$USER"
+##call  function of no-ip h_start h_end m_start m_end  by month-day per-month/12
+random_range 1 5 1 59 1 7
+echo "$_m $_h  9 * * cd /root/python_dir/no_ip && /usr/local/bin/python3.6 no_ip_confirm.py" >> "/var/spool/cron/$USER"
 
+sleep 0.5
+##call function flush_logs(path log_file_locate)
+flush_logs '/root/python_dir/no_ip' 'no_ip_confirm.py'
 
 
 ##call  function of apk_linux_with_reply h_start h_end m_start m_end w_start w_end
@@ -121,6 +125,14 @@ echo "$_m $_h  * * $_w cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 
 sleep 0.5
 ##call function flush_logs(path log_file_locate)
 flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_software.py'
+
+## call  function of awabest  h_start h_end m_start m_end w_start w_end
+random_range 1 5 1 59 1 7
+echo "$_m $_h  * * * cd /root/python_dir/awabest && /usr/local/bin/python3.6 awa_linux_with_reply.py" >> "/var/spool/cron/$USER"
+
+sleep 0.5
+##call function flush_logs(path log_file_locate)
+flush_logs '/root/python_dir/awabest' 'awa_linux_with_reply.py'
 
 
 
