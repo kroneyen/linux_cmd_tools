@@ -1,6 +1,7 @@
 #!/bin/sh
 #20180830 adding flush_logs clean more than 10 M
 #20180903 adding random_range of week
+#20190103 adding random_list && get_no_ip_date 
 
 function random_range()
 {
@@ -16,24 +17,25 @@ function random_range()
     range_2=$(($6 -$5 +1)) ##1~7
     low_3=$7
     range_3=$(($8 -$7 +1)) ##1~7
-
+    ## for hour
     _h=$(($low+$RANDOM % $range)) ## for hours
     	
 	if [ "$_h" -lt "10" ]; then
 	   _h=$(printf "%02d" $_h)	
 	fi
 	
-	
+    ## for minute
     _m=$(($low_1+$RANDOM % $range_1))  ## for minutes 
 
         if [ "$_m" -lt "10" ]; then
            _m=$(printf "%02d" $_m)
         fi
-
+    
+    ## for week
     _w=1
     _w1=1
-
-    while [ "$_w" -eq "$_w1" ]
+   
+    while [ "$_w" -ge "$_w1" ]
     do
        _w=$(($low_2+$RANDOM % $range_2))  ## for week
 
@@ -60,18 +62,50 @@ cd $1
 
 file=`cat $2 | grep filename | awk '{print $1}' | cut -c 11- |cut -d "'" -f 1` ## get log_file name
 
-#echo $file 
-file_size=`du -m ${file} | awk '{print $1}'`
-    
-#echo $file_size
+if [ -f "$file" ];then ## check file is exist 
 
-if [ "$file_size" -ge "10" ]; then   ## log_file  >= 10M
-   echo "" > $file
+   #echo $file 
+   file_size=`du -m ${file} | awk '{print $1}'`
+    
+   #echo $file_size
+
+   if [ "$file_size" -ge "10" ]; then   ## log_file  >= 10M
+       echo "" > $file
+
+   fi
 
 fi
 
 }
 
+
+## get no ip flush date 
+function get_no_ip_date() 
+{
+cd $1
+
+file=`cat $2 | grep filename | awk '{print $1}' | cut -c 11- |cut -d "'" -f 1` ## get log_file name
+
+## get date for log file  '2018-12-12' >> 12 
+if [ -f "$file" ];then ## check file is exist 
+
+    _nd=`tail -n5 $file  | grep 'domain confirm is all down !!' | sort -r -n | head -n1 | awk '{print $1}' | cut -d"-" -f 3`
+    ## check date great then 1
+    if [ "$_nd" -gt 1 ];then
+       _nd=$(printf "%02d" $(($_nd-1)))
+
+    else 
+        _nd=1
+  
+    fi 
+else
+    _nd=1
+
+fi
+
+}
+
+## _random_list format : h_start h_end m_start m_end w_start w_end w1_start w1_end
 _random_list="1 5 1 59 1 7 1 7"
 
 ## delete crontab
@@ -104,13 +138,13 @@ sleep 0.5
 flush_logs '/root/python_dir/kingbus' 'kingbus_linux.py'
 
 ##call  function of no-ip h_start h_end m_start m_end  by month-day per-month/12
+get_no_ip_date '/root/python_dir/no_ip' 'no_ip_confirm.py'
 random_range $_random_list
-echo "$_m $_h  9 * * cd /root/python_dir/no_ip && /usr/local/bin/python3.6 no_ip_confirm.py" >> "/var/spool/cron/$USER"
+echo "$_m $_h  $_nd * * cd /root/python_dir/no_ip && /usr/local/bin/python3.6 no_ip_confirm.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 ##call function flush_logs(path log_file_locate)
 flush_logs '/root/python_dir/no_ip' 'no_ip_confirm.py'
-
 
 ##call  function of apk_linux_with_reply h_start h_end m_start m_end w_start w_end
 random_range $_random_list
