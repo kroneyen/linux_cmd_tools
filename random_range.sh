@@ -10,9 +10,9 @@ function random_range()
         return
     fi
     low=$1
-    range=$(($2 - $1))
+    range=$(($2 - $1 +1)) ## 0-5
     low_1=$3
-    range_1=$(($4 -$3 +1)) ##1~59
+    range_1=$(($4 -$3 +1)) ##10~59
     low_2=$5
     range_2=$(($6 -$5 +1)) ##1~7
     low_3=$7
@@ -82,31 +82,26 @@ fi
 ## get no ip flush date 
 function get_no_ip_date() 
 {
-cd $1
+   cd $1
 
-file=`cat $2 | grep filename | awk '{print $1}' | cut -c 11- |cut -d "'" -f 1` ## get log_file name
+   file=`cat $2 | grep filename | awk '{print $1}' | cut -c 11- |cut -d "'" -f 1` ## get log_file name
+   ## get date for log file  
 
-## get date for log file  '2018-12-12' >> 12 
-if [ -f "$file" ];then ## check file is exist 
+      if [ -f "$file" ];then ## check log file is exist 
 
-    _nd=`tail -n5 $file  | grep 'domain confirm is all down !!' | sort -r -n | head -n1 | awk '{print $1}' | cut -d"-" -f 3`
-    ## check date great then 1
-    if [ "$_nd" -gt 1 ];then
-       _nd=$(printf "%02d" $(($_nd-1)))
-
-    else 
-        _nd=1
-  
-    fi 
-else
-    _nd=1
-
-fi
+         _get_file_date=`tail -n5 $file  | grep 'user all done!!' | sort -r -n | head -n1 | awk '{print $1}'`
+         _nd=`date -d "${_get_file_date} 22 days" +%d`  ##after 22 days
+      
+      else ### the check file not existed
+              _nd=`date -d "22 days" +%d`
+      fi
 
 }
 
+
+
 ## _random_list format : h_start h_end m_start m_end w_start w_end w1_start w1_end
-_random_list="1 5 1 59 1 7 1 7"
+_random_list="0 5 10 59 1 7 1 7"
 
 ## delete crontab
 sed -i '/p2plogin_linux_with_reply.py/d' /var/spool/cron/$USER
@@ -128,9 +123,10 @@ sleep 0.5
 flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply.py'
 
 
-##call  function of kingbus h_start h_end m_start m_end w_start w_end
+##call  function of kingbus h_start h_end m_start m_end w_start w_end 
+## execute kingbus with sys argv : kingbus_linux.py 2019/02/22 2019/02/25 (default 0 0 )
 random_range $_random_list
-echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && /usr/local/bin/python3.6 kingbus_linux.py" >> "/var/spool/cron/$USER"
+echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && /usr/local/bin/python3.6 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 
