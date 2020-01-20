@@ -90,10 +90,10 @@ function get_no_ip_date()
       if [ -f "$file" ];then ## check log file is exist 
 
          _get_file_date=`tail -n5 $file  | grep 'user all done!!' | sort -r -n | head -n1 | awk '{print $1}'`
-         _nd=`date -d "${_get_file_date} 22 days" +%d`  ##after 22 days
+         _nd=`date -d "${_get_file_date} 24 days" +%d`  ##after 23 days
       
       else ### the check file not existed
-              _nd=`date -d "22 days" +%d`
+              _nd=`date -d "24 days" +%d`
       fi
 
 }
@@ -126,7 +126,7 @@ flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply.py'
 ##call  function of kingbus h_start h_end m_start m_end w_start w_end 
 ## execute kingbus with sys argv : kingbus_linux.py 2019/02/22 2019/02/25 (default 0 0 )
 random_range $_random_list
-echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && /usr/local/bin/python3.6 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
+echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && rm -rf *.png && /usr/local/bin/python3.6 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 
@@ -144,7 +144,7 @@ flush_logs '/root/python_dir/no_ip' 'no_ip_confirm.py'
 
 ##call  function of apk_linux_with_reply h_start h_end m_start m_end w_start w_end
 random_range $_random_list
-echo "$_m $_h  * * * cd /root/python_dir/apklogin && /usr/local/bin/python3.6 apk_linux_with_reply.py" >> "/var/spool/cron/$USER"
+echo "#$_m $_h  * * * cd /root/python_dir/apklogin && /usr/local/bin/python3.6 apk_linux_with_reply.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 
