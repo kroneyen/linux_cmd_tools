@@ -1,6 +1,6 @@
 #!/bin/bash
  
-toemail="krone.huang@gmail.com"
+toemail="xxxxxxx@gmail.com"
 alert=50
  
 df -H | grep -vE '^Filesystem|tmpfs' | awk '{ print $5 " " $6 }' | grep "/" | head -n 1 | while read output;
