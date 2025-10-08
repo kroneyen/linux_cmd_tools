@@ -3,6 +3,8 @@
 #20180903 adding random_range of week
 #20190103 adding random_list && get_no_ip_date 
 
+###_random_list="0 5 10 59 1 7 1 7"
+
 function random_range()
 {
     if [ "$#" -lt "8" ]; then 
@@ -17,6 +19,12 @@ function random_range()
     range_2=$(($6 -$5 +1)) ##1~7
     low_3=$7
     range_3=$(($8 -$7 +1)) ##1~7
+    #low_4=$7
+    #range_4=$(($2 -$7 +1)) ##1~5
+    low_4=$2
+    range_4=$(($3 -$2 +1)) ##5~10
+
+
     ## for hour
     _h=$(($low+$RANDOM % $range)) ## for hours
     	
@@ -30,6 +38,26 @@ function random_range()
         if [ "$_m" -lt "10" ]; then
            _m=$(printf "%02d" $_m)
         fi
+
+    _h1=$8
+   # _h1=$(($low_4+$RANDOM % $range_4)) ## for hours_1
+
+   #     if [ "$_h1" -lt "10" ]; then
+   #        _h1=$(printf "%02d" $_h1)
+   #     fi
+
+    _m2=$(($low_4+$RANDOM % $range_4)) ## for minute 2~5
+
+        if [ "$_m2" -lt "10" ]; then
+          #_m2=$(printf "%02d" $_m2)
+          #if [ "$_m2" == "1" ] ; then 
+          #   _m2=2
+          #fi        
+          _m2=$(printf "%02d" $_m2)
+
+        fi 
+
+
     
     ## for week
     _w=1
@@ -86,57 +114,69 @@ function get_no_ip_date()
 
    file=`cat $2 | grep filename | awk '{print $1}' | cut -c 11- |cut -d "'" -f 1` ## get log_file name
    ## get date for log file  
+      ## calculate monthly days 
+      m=`date +'%m'`
+      #flush_day=`date -d "$m/1 + 1 month -1 day" +%d`      
+      flush_day=29      
 
       if [ -f "$file" ];then ## check log file is exist 
 
-         _get_file_date=`tail -n5 $file  | grep 'user all done!!' | sort -r -n | head -n1 | awk '{print $1}'`
-         _nd=`date -d "${_get_file_date} 24 days" +%d`  ##after 23 days
+         _get_file_date=`tail -n30 $file  | grep 'user Confirm  done!!' | sort -r -n | head -n1 | awk '{print $1}'`
+         _nd=`date -d "${_get_file_date} ${flush_day} days" +%d`  ##after 30 days
       
       else ### the check file not existed
-              _nd=`date -d "24 days" +%d`
+              _nd=`date -d "${flush_day} days" +%d`
       fi
 
 }
 
+USER='root'
 
-
-## _random_list format : h_start h_end m_start m_end w_start w_end w1_start w1_end
+## _random_list format : h_start h_end m_start m_end w_start w_end w1_start w1_end  h1_end
 _random_list="0 5 10 59 1 7 1 7"
 
 ## delete crontab
 sed -i '/p2plogin_linux_with_reply.py/d' /var/spool/cron/$USER
+#sed -i '/kingbus_linux_oneway.py/d' /var/spool/cron/$USER
 sed -i '/kingbus_linux.py/d' /var/spool/cron/$USER
 sed -i '/no_ip_confirm.py/d' /var/spool/cron/$USER
 sed -i '/apk_linux_with_reply.py/d' /var/spool/cron/$USER
 sed -i '/p2plogin_linux_with_reply_drama.py/d' /var/spool/cron/$USER
 sed -i '/p2plogin_linux_with_reply_software.py/d' /var/spool/cron/$USER
 sed -i '/awa_linux_with_reply.py/d' /var/spool/cron/$USER
+sed -i '/stock_hot_news_key_wd_line.py/d' /var/spool/cron/$USER
+sed -i '/exchange_rate.py/d' /var/spool/cron/$USER
 
 ## add crontab
 
 ##call  function of p2p h_start h_end m_start m_end w_start w_end
-random_range $_random_list 
-echo "$_m $_h  * * * cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply.py" >> "/var/spool/cron/$USER"
+#random_range $_random_list 
+#echo "#$_m $_h  * * * cd /root/python_dir/p2plogin && /root/miniconda3/envs/py3137/bin/python3 p2plogin_linux_with_reply.py" >> "/var/spool/cron/$USER"
 
-sleep 0.5
+#sleep 0.5
 ##call function flush_logs(path log_file_locate)
-flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply.py'
+#flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply.py'
 
 
 ##call  function of kingbus h_start h_end m_start m_end w_start w_end 
-## execute kingbus with sys argv : kingbus_linux.py 2019/02/22 2019/02/25 (default 0 0 )
+## execute kingbus with sys argv : kingbus_linux_oneway.py 2019/02/22 2019/02/25 (default 0 0 )
 random_range $_random_list
-echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && rm -rf *.png && /usr/local/bin/python3.6 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
+echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && rm -rf *.png && /root/miniconda3/envs/py3137/bin/python3 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
+#echo "$_m $_h  * * 1 cd /root/python_dir/kingbus && rm -rf *.png && /root/miniconda3/envs/py3137/bin/python3 kingbus_linux.py 0 0" >> "/var/spool/cron/$USER"
+#echo "$_m $_h  * * 1,5 cd /root/python_dir/kingbus && rm -rf *.png && /root/miniconda3/envs/py3137/bin/python3 kingbus_linux_oneway.py 0 " >> "/var/spool/cron/$USER"
+#echo "$_m $_h  * * 5 cd /root/python_dir/kingbus && rm -rf *.png && /root/miniconda3/envs/py3137/bin/python3 kingbus_linux_oneway.py 0 " >> "/var/spool/cron/$USER"
+#echo "$_m $_h1  * * 1 cd /root/python_dir/kingbus && rm -rf *.png && /root/miniconda3/envs/py3137/bin/python3 kingbus_linux_oneway.py 0 " >> "/var/spool/cron/$USER"
 
 sleep 0.5
 
 ##call function flush_logs(path log_file_locate)
 flush_logs '/root/python_dir/kingbus' 'kingbus_linux.py'
+#flush_logs '/root/python_dir/kingbus' 'kingbus_linux_oneway.py'
 
 ##call  function of no-ip h_start h_end m_start m_end  by month-day per-month/12
 get_no_ip_date '/root/python_dir/no_ip' 'no_ip_confirm.py'
 random_range $_random_list
-echo "$_m $_h  $_nd * * cd /root/python_dir/no_ip && /usr/local/bin/python3.6 no_ip_confirm.py" >> "/var/spool/cron/$USER"
+echo "$_m $_h  $_nd * * cd /root/python_dir/no_ip && /root/miniconda3/envs/py3137/bin/python3 no_ip_confirm.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 ##call function flush_logs(path log_file_locate)
@@ -144,7 +184,7 @@ flush_logs '/root/python_dir/no_ip' 'no_ip_confirm.py'
 
 ##call  function of apk_linux_with_reply h_start h_end m_start m_end w_start w_end
 random_range $_random_list
-echo "#$_m $_h  * * * cd /root/python_dir/apklogin && /usr/local/bin/python3.6 apk_linux_with_reply.py" >> "/var/spool/cron/$USER"
+echo "#$_m $_h  * * * cd /root/python_dir/apklogin && /root/miniconda3/envs/py3137/bin/python3 apk_linux_with_reply.py" >> "/var/spool/cron/$USER"
 
 sleep 0.5
 
@@ -153,30 +193,45 @@ flush_logs '/root/python_dir/apklogin' 'apk_linux_with_reply.py'
 
 
 ## call  function of drama h_start h_end m_start m_end w_start w_end
-random_range $_random_list
-echo "$_m $_h  * * $_w,$_w1 cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply_drama.py" >> "/var/spool/cron/$USER"
+#random_range $_random_list
+#echo "#$_m $_h  * * $_w,$_w1 cd /root/python_dir/p2plogin && /root/miniconda3/envs/py3137/bin/python3 p2plogin_linux_with_reply_drama.py" >> "/var/spool/cron/$USER"
 
-sleep 0.5
+#sleep 0.5
 ##call function flush_logs(path log_file_locate)
-flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_drama.py'
+#flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_drama.py'
 
 
 ## call  function of software h_start h_end m_start m_end w_start w_end
-random_range $_random_list
-echo "$_m $_h  * * $_w,$_w1 cd /root/python_dir/p2plogin && /usr/local/bin/python3.6 p2plogin_linux_with_reply_software.py" >> "/var/spool/cron/$USER"
+#random_range $_random_list
+#echo "#$_m $_h  * * $_w,$_w1 cd /root/python_dir/p2plogin && /root/miniconda3/envs/py3137/bin/python3 p2plogin_linux_with_reply_software.py" >> "/var/spool/cron/$USER"
 
-sleep 0.5
+#sleep 0.5
 ##call function flush_logs(path log_file_locate)
-flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_software.py'
+#flush_logs '/root/python_dir/p2plogin' 'p2plogin_linux_with_reply_software.py'
 
 ## call  function of awabest  h_start h_end m_start m_end w_start w_end
-random_range $_random_list
-echo "$_m $_h  * * * cd /root/python_dir/awabest && /usr/local/bin/python3.6 awa_linux_with_reply.py" >> "/var/spool/cron/$USER"
+#random_range $_random_list
+#echo "#$_m $_h  * * * cd /root/python_dir/awabest && /root/miniconda3/envs/py3137/bin/python3 awa_linux_with_reply.py" >> "/var/spool/cron/$USER"
+
+#sleep 0.5
+##call function flush_logs(path log_file_locate)
+#flush_logs '/root/python_dir/awabest' 'awa_linux_with_reply.py'
 
 sleep 0.5
 ##call function flush_logs(path log_file_locate)
-flush_logs '/root/python_dir/awabest' 'awa_linux_with_reply.py'
+random_range $_random_list
+#echo "*/$_m 07-23 * * * cd /root/python_dir/stock && /root/miniconda3/envs/py3137/bin/python3 stock_hot_news_key_wd_line.py" >> "/var/spool/cron/$USER"
+echo "*/$_m * * * * cd /root/python_dir/stock && /root/miniconda3/envs/py3137/bin/python3 stock_hot_news_key_wd_line.py" >> "/var/spool/cron/$USER"
+### */30 * * * * cd /root/python_dir/stock && /root/miniconda3/envs/py3137/bin/python3 stock_hot_news_key_wd_line.py
 
+sleep 0.5
+##call function flush_logs(path log_file_locate)
+random_range $_random_list
+echo "*/$_m2 08-13 * * 1-5 cd /root/python_dir/bank_rate_info && /root/miniconda3/envs/py3137/bin/python3 exchange_rate.py" >> "/var/spool/cron/$USER"
+echo "*/$_m 14-18 * * 1-5 cd /root/python_dir/bank_rate_info && /root/miniconda3/envs/py3137/bin/python3 exchange_rate.py" >> "/var/spool/cron/$USER"
+####"*/5 * * * * * cd /root/python_dir/bank_rate_info && /root/miniconda3/envs/py3137/bin/python3 exchange_rate.py" >> "/var/spool/cron/$USER"
+
+#echo "*/60 19-23 * * * cd /root/python_dir/bank_rate_info && /root/miniconda3/envs/py3137/bin/python3 exchange_rate.py" >> "/var/spool/cron/$USER"
 
 
 ## crontab apply
